@@ -2,7 +2,20 @@
   "name": "@nestjs-cicd-mono/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "start:api": "nx serve api-gateway --skip-nx-cache",
+    "build:api": "nx build api-gateway",
+    "test:api": "nx test api-gateway",
+    "lint:api": "nx lint api-gateway --fix",
+    "start:product": "nx serve product --skip-nx-cache",
+    "build:product": "nx build product",
+    "test:product": "nx test product",
+    "lint:product": "nx lint product --fix",
+    "build:all": "nx run-many --target build --all --verbose",
+    "test:all": "nx run-many --target test --all --verbose",
+    "lint:all": "nx run-many --target lint --all --verbose",
+    "lint:fix:all": "nx run-many --target lint --all --fix"
+  },
   "private": true,
   "dependencies": {
     "@nestjs/common": "^10.0.2",
