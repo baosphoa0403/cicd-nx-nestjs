@@ -19,6 +19,14 @@ pipeline {
           echo "🔹 Head branch: ${env.NX_HEAD_BRANCH}"
 
 
+          // Fetch full git history
+          sh """
+            echo "📥 Fetching full git history..."
+            git fetch --unshallow || echo 'Already unshallowed'
+            git fetch origin ${env.NX_BASE_BRANCH}:${env.NX_BASE_BRANCH}
+            git fetch origin main:origin/main
+          """
+
           sh '''
             echo "📦 Installing dependencies..."
             npm install
