@@ -14,7 +14,7 @@ async function bootstrap() {
   const port = process.env.PORT || 3000;
   await app.listen(port);
   Logger.log(
-    `🚀 Application Api Gateway 2 is running on: http://localhost:${port}/${globalPrefix}`
+    `🚀 Application Api Gateway 3 is running on: http://localhost:${port}/${globalPrefix}`
   );
 }
 
