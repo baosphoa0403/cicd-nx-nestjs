@@ -8,6 +8,9 @@ pipeline {
     stage('Prepare') {
       steps {
         script {
+          echo "CHANGE_TARGET: ${env.CHANGE_TARGET}"
+          echo "CHANGE_BRANCH: ${env.CHANGE_BRANCH}"
+
           echo "Base branch: ${env.NX_BASE_BRANCH}"
           echo "Feature branch: ${env.NX_HEAD_BRANCH}"
 
