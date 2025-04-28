@@ -1,17 +1,29 @@
 pipeline {
   agent any
-  environment {
-    NX_BASE_BRANCH = "${CHANGE_TARGET}" // Base branch (e.g. main, develop)
-    NX_HEAD_BRANCH = "${CHANGE_BRANCH}" // Feature branch (your PR)
+
+  tools {
+     nodejs "Node.23.8.0" // Name of the Node.js version configured in Jenkins
   }
+
   stages {
     stage('Prepare') {
       steps {
         script {
-          echo "Base branch: ${env.NX_BASE_BRANCH}"
-          echo "Feature branch: ${env.NX_HEAD_BRANCH}"
+          echo "====== Print all ENV ======"
 
-          // Fetch base branch because Jenkins shallow clones by default
+          env.NX_BASE_BRANCH = env.BRANCH_NAME
+          env.NX_HEAD_BRANCH = env.BRANCH_NAME
+
+          echo "🚀 Push Build Detected"
+          echo "🔹 Base branch: ${env.NX_BASE_BRANCH}"
+          echo "🔹 Head branch: ${env.NX_HEAD_BRANCH}"
+
+
+          sh '''
+            echo "📦 Installing dependencies..."
+            npm install
+          '''
+
           sh "git fetch origin ${env.NX_BASE_BRANCH}"
         }
       }
@@ -21,7 +33,7 @@ pipeline {
       steps {
         script {
           def changedApps = sh(
-            script: "npx nx show projects --affected --base=origin/${env.NX_BASE_BRANCH} --head=HEAD --type=app --plain",
+            script: "npx nx show projects --affected --base=origin/${env.NX_BASE_BRANCH} --head=HEAD",
             returnStdout: true
           ).trim()
 
@@ -31,7 +43,7 @@ pipeline {
             env.CHANGED_APPS = []
           }
 
-          echo "Changed apps detected: ${env.CHANGED_APPS}"
+          echo "✅ Changed apps detected: ${env.CHANGED_APPS}"
         }
       }
     }
@@ -40,21 +52,29 @@ pipeline {
 //       when {
 //         expression { env.CHANGED_APPS.size() > 0 }
 //       }
-//       parallel {
+//       steps {
 //         script {
-//           env.CHANGED_APPS.each { app ->
-//             stage("Build and Test ${app}") {
-//               steps {
-//                 sh """
-//                   echo "Building app: ${app}"
-//                   npx nx run ${app}:build
+//           def apps = env.CHANGED_APPS
+//           def branches = [:]
 //
-//                   echo "Testing app: ${app}"
-//                   npx nx run ${app}:test
-//                 """
+//           for (int i = 0; i < apps.size(); i++) {
+//             def app = apps[i]
+//             branches["Build and Test ${app}"] = {
+//               stage("Build and Test ${app}") {
+//                 steps {
+//                   sh """
+//                     echo "Building app: ${app}"
+//                     npx nx run ${app}:build
+//
+//                     echo "Testing app: ${app}"
+//                     npx nx run ${app}:test
+//                   """
+//                 }
 //               }
 //             }
 //           }
+//
+//           parallel branches
 //         }
 //       }
 //     }
@@ -64,7 +84,7 @@ pipeline {
 //         expression { env.CHANGED_APPS.size() == 0 }
 //       }
 //       steps {
-//         echo 'No app changes detected. Skipping build and test.'
+//         echo 'ℹ️ No app changes detected. Skipping build and test.'
 //       }
 //     }
   }
